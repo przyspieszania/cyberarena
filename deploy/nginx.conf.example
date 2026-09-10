@@ -1,0 +1,49 @@
+# Przykładowa konfiguracja nginx dla CyberArena.
+# Zakłada certyfikaty wystawione np. przez Let's Encrypt (certbot) w standardowych ścieżkach.
+# Podmień "twoja-domena.pl" na własną domenę.
+
+server {
+    listen 80;
+    server_name twoja-domena.pl;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name twoja-domena.pl;
+
+    ssl_certificate     /etc/letsencrypt/live/twoja-domena.pl/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/twoja-domena.pl/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    client_max_body_size 1m;
+
+    # Statyczny frontend (index.html)
+    root /var/www/cyberarena/frontend;
+    index index.html;
+
+    location / {
+        try_files $uri /index.html;
+    }
+
+    # Backend API — proxy do Node.js/Express nasłuchującego lokalnie na porcie 4000.
+    location /api/ {
+        proxy_pass         http://127.0.0.1:4000;
+        proxy_http_version 1.1;
+        proxy_set_header    Host $host;
+        proxy_set_header    X-Real-IP $remote_addr;
+        proxy_set_header    X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header    X-Forwarded-Proto $scheme;
+
+        # Rate limiting jest już egzekwowany w Express (express-rate-limit),
+        # ale dodatkowa warstwa na poziomie nginx jest zalecana dla produkcji:
+        # limit_req zone=api_limit burst=20 nodelay;
+    }
+}

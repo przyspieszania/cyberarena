@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberArena — Platforma edukacyjna cyberbezpieczeństwa</title>
+<meta name="description" content="Ucz się cyberbezpieczeństwa: moduły, testy, laboratoria, konkursy, ranking.">
+<style>
+:root{
+  --bg-0:#0a0e14; --bg-1:#0f151f; --bg-2:#151d2b; --bg-3:#1c2636;
+  --border:#243247; --border-soft:#1c2636;
+  --text-0:#e8edf5; --text-1:#a8b6cc; --text-2:#6b7b96;
+  --accent:#39ff9d; --accent-dim:#1f9e63; --accent-glow:rgba(57,255,157,.18);
+  --danger:#ff5470; --warn:#ffb020; --info:#3aa0ff;
+  --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --radius:10px; --radius-sm:6px;
+  --shadow:0 8px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:radial-gradient(1200px 600px at 80% -10%, rgba(57,255,157,.06), transparent),
+             radial-gradient(900px 500px at -10% 110%, rgba(58,160,255,.06), transparent),
+             var(--bg-0);
+  color:var(--text-0); font-family:var(--sans); min-height:100vh; line-height:1.5;
+}
+h1,h2,h3,h4{font-weight:700; margin:0 0 .4em;}
+a{color:inherit;}
+button{font-family:inherit; cursor:pointer;}
+::selection{background:var(--accent-glow); color:var(--accent);}
+code, .mono{font-family:var(--mono);}
+.hidden{display:none !important;}
+.container{max-width:1180px; margin:0 auto; padding:0 20px;}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:11px 18px; border-radius:var(--radius-sm); border:1px solid var(--border);
+  background:var(--bg-2); color:var(--text-0); font-size:14px; font-weight:600;
+  transition:.15s ease; white-space:nowrap;
+}
+.btn:hover{border-color:var(--accent-dim); background:var(--bg-3);}
+.btn:disabled{opacity:.5; cursor:not-allowed;}
+.btn-primary{background:var(--accent); color:#04140c; border-color:var(--accent);}
+.btn-primary:hover{background:#5dffb3; box-shadow:0 0 0 3px var(--accent-glow);}
+.btn-danger{background:transparent; color:var(--danger); border-color:rgba(255,84,112,.4);}
+.btn-danger:hover{background:rgba(255,84,112,.1);}
+.btn-ghost{background:transparent; border-color:transparent;}
+.btn-ghost:hover{background:var(--bg-2);}
+.btn-sm{padding:6px 12px; font-size:12.5px;}
+.btn-block{width:100%;}
+
+/* ---------- Forms ---------- */
+label{display:block; font-size:12.5px; color:var(--text-1); margin:14px 0 6px; font-weight:600; letter-spacing:.02em;}
+label:first-child{margin-top:0;}
+input, textarea, select{
+  width:100%; padding:11px 13px; background:var(--bg-1); border:1px solid var(--border);
+  border-radius:var(--radius-sm); color:var(--text-0); font-size:14px; font-family:inherit;
+}
+input:focus, textarea:focus, select:focus{outline:none; border-color:var(--accent-dim); box-shadow:0 0 0 3px var(--accent-glow);}
+textarea{resize:vertical; min-height:90px;}
+.field-error{color:var(--danger); font-size:12px; margin-top:5px;}
+.field-hint{color:var(--text-2); font-size:12px; margin-top:5px;}
+.checkbox-row{display:flex; align-items:center; gap:8px; margin:10px 0;}
+.checkbox-row input{width:auto;}
+
+/* ---------- Layout: auth screens ---------- */
+#auth-screen{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;}
+.auth-card{width:100%; max-width:400px; background:var(--bg-1); border:1px solid var(--border); border-radius:var(--radius); padding:34px 30px; box-shadow:var(--shadow);}
+.auth-brand{display:flex; align-items:center; gap:10px; margin-bottom:26px;}
+.auth-brand .logo-mark{width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent-dim)); display:flex; align-items:center; justify-content:center; font-weight:800; color:#04140c;}
+.auth-brand .name{font-size:18px; font-weight:800; letter-spacing:.02em;}
+.auth-switch{margin-top:18px; text-align:center; font-size:13px; color:var(--text-2);}
+.auth-switch button{background:none; border:none; color:var(--accent); font-weight:600; padding:0;}
+
+/* ---------- App shell ---------- */
+#app-shell{display:none; min-height:100vh; grid-template-columns:230px 1fr;}
+#app-shell.active{display:grid;}
+.sidebar{background:var(--bg-1); border-right:1px solid var(--border-soft); padding:18px 14px; display:flex; flex-direction:column; position:sticky; top:0; height:100vh;}
+.sidebar .auth-brand{padding:0 6px; margin-bottom:22px;}
+.nav-group{margin-bottom:6px;}
+.nav-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-2); padding:14px 10px 6px;}
+.nav-item{display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:var(--radius-sm); color:var(--text-1); font-size:13.5px; font-weight:600; margin-bottom:2px;}
+.nav-item:hover{background:var(--bg-2); color:var(--text-0);}
+.nav-item.active{background:var(--accent-glow); color:var(--accent);}
+.nav-item .dot{width:6px; height:6px; border-radius:50%; background:currentColor;}
+.sidebar-footer{margin-top:auto; padding-top:14px; border-top:1px solid var(--border-soft);}
+.user-chip{display:flex; align-items:center; gap:10px; padding:8px; border-radius:var(--radius-sm);}
+.user-avatar{width:32px; height:32px; border-radius:8px; background:var(--bg-3); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:var(--accent); flex-shrink:0;}
+.user-meta{overflow:hidden;}
+.user-meta .u-name{font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.user-meta .u-role{font-size:11px; color:var(--text-2);}
+
+main#view{padding:26px 30px 60px; overflow-y:auto;}
+.page-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:22px; flex-wrap:wrap;}
+.page-head h1{font-size:22px;}
+.page-sub{color:var(--text-1); font-size:13.5px; margin-top:2px;}
+
+/* ---------- Cards / grids ---------- */
+.grid{display:grid; gap:16px;}
+.grid-3{grid-template-columns:repeat(auto-fill, minmax(230px,1fr));}
+.grid-2{grid-template-columns:repeat(auto-fill, minmax(320px,1fr));}
+.card{background:var(--bg-1); border:1px solid var(--border-soft); border-radius:var(--radius); padding:18px; transition:.15s;}
+.card:hover{border-color:var(--border);}
+.card-clickable{cursor:pointer;}
+.card-clickable:hover{border-color:var(--accent-dim); box-shadow:0 0 0 1px var(--accent-dim) inset;}
+.stat-card .stat-num{font-size:28px; font-weight:800; color:var(--accent); font-family:var(--mono);}
+.stat-card .stat-label{font-size:12.5px; color:var(--text-2); margin-top:4px;}
+.badge{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:100px; font-size:11px; font-weight:700; letter-spacing:.02em; text-transform:uppercase;}
+.badge-beginner{background:rgba(57,255,157,.12); color:var(--accent);}
+.badge-intermediate{background:rgba(255,176,32,.14); color:var(--warn);}
+.badge-advanced{background:rgba(255,84,112,.14); color:var(--danger);}
+.badge-role-admin{background:rgba(255,84,112,.14); color:var(--danger);}
+.badge-role-employee{background:rgba(58,160,255,.14); color:var(--info);}
+.badge-role-user{background:var(--bg-3); color:var(--text-1);}
+.badge-published{background:rgba(57,255,157,.12); color:var(--accent);}
+.badge-draft{background:var(--bg-3); color:var(--text-2);}
+.progress-bar{height:6px; border-radius:100px; background:var(--bg-3); overflow:hidden;}
+.progress-bar > div{height:100%; background:linear-gradient(90deg,var(--accent-dim),var(--accent));}
+
+/* ---------- Table ---------- */
+.table-wrap{background:var(--bg-1); border:1px solid var(--border-soft); border-radius:var(--radius); overflow:hidden;}
+table{width:100%; border-collapse:collapse; font-size:13.5px;}
+th{text-align:left; padding:12px 16px; color:var(--text-2); font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; border-bottom:1px solid var(--border-soft); background:var(--bg-2);}
+td{padding:12px 16px; border-bottom:1px solid var(--border-soft); vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--bg-2);}
+
+/* ---------- Tabs ---------- */
+.tabs{display:flex; gap:4px; border-bottom:1px solid var(--border-soft); margin-bottom:20px;}
+.tab{padding:10px 16px; font-size:13.5px; font-weight:600; color:var(--text-2); border-bottom:2px solid transparent;}
+.tab.active{color:var(--accent); border-color:var(--accent);}
+.tab:hover{color:var(--text-0);}
+
+/* ---------- Empty / loading ---------- */
+.empty-state{text-align:center; padding:60px 20px; color:var(--text-2);}
+.empty-state .icon{font-size:34px; margin-bottom:10px;}
+.loading-state{display:flex; align-items:center; justify-content:center; gap:10px; padding:50px; color:var(--text-2); font-size:13.5px;}
+.spinner{width:16px; height:16px; border-radius:50%; border:2px solid var(--border); border-top-color:var(--accent); animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ---------- Modal ---------- */
+.modal-backdrop{position:fixed; inset:0; background:rgba(5,8,13,.65); backdrop-filter:blur(2px); display:flex; align-items:flex-start; justify-content:center; padding:5vh 20px; z-index:100; overflow-y:auto;}
+.modal{width:100%; max-width:560px; background:var(--bg-1); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); animation:modalIn .15s ease;}
+.modal.modal-lg{max-width:760px;}
+@keyframes modalIn{from{opacity:0; transform:translateY(-8px);} to{opacity:1; transform:translateY(0);}}
+.modal-head{display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border-soft);}
+.modal-head h3{font-size:16px;}
+.modal-close{background:none; border:none; color:var(--text-2); font-size:20px; line-height:1; padding:4px;}
+.modal-close:hover{color:var(--text-0);}
+.modal-body{padding:20px 22px; max-height:70vh; overflow-y:auto;}
+.modal-foot{display:flex; justify-content:flex-end; gap:10px; padding:16px 22px; border-top:1px solid var(--border-soft);}
+
+/* ---------- Toasts ---------- */
+#toast-stack{position:fixed; bottom:20px; right:20px; display:flex; flex-direction:column; gap:10px; z-index:200;}
+.toast{min-width:260px; max-width:360px; padding:13px 16px; border-radius:var(--radius-sm); background:var(--bg-2); border:1px solid var(--border); box-shadow:var(--shadow); font-size:13.5px; display:flex; align-items:flex-start; gap:10px; animation:toastIn .18s ease;}
+@keyframes toastIn{from{opacity:0; transform:translateX(16px);} to{opacity:1; transform:translateX(0);}}
+.toast-success{border-color:var(--accent-dim);}
+.toast-error{border-color:var(--danger);}
+.toast-info{border-color:var(--info);}
+.toast .icon{flex-shrink:0; font-weight:800;}
+.toast-success .icon{color:var(--accent);}
+.toast-error .icon{color:var(--danger);}
+.toast-info .icon{color:var(--info);}
+
+/* ---------- Misc ---------- */
+.panel{background:var(--bg-1); border:1px solid var(--border-soft); border-radius:var(--radius); padding:20px;}
+.muted{color:var(--text-2);}
+.flex-between{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+.flex-row{display:flex; align-items:center; gap:10px;}
+.mt-16{margin-top:16px;} .mt-24{margin-top:24px;}
+.divider{height:1px; background:var(--border-soft); margin:18px 0;}
+.q-option{display:flex; align-items:center; gap:10px; padding:11px 13px; border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:8px; cursor:pointer;}
+.q-option:hover{border-color:var(--accent-dim);}
+.q-option.selected{border-color:var(--accent); background:var(--accent-glow);}
+.q-option.correct{border-color:var(--accent); background:rgba(57,255,157,.1);}
+.q-option.incorrect{border-color:var(--danger); background:rgba(255,84,112,.1);}
+.xp-pill{display:inline-flex; align-items:center; gap:5px; background:var(--bg-3); color:var(--accent); font-family:var(--mono); font-size:12px; font-weight:700; padding:4px 10px; border-radius:100px;}
+.perm-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px 16px;}
+.hamburger{display:none;}
+@media(max-width:880px){
+  #app-shell.active{display:block;}
+  .sidebar{position:fixed; left:0; top:0; bottom:0; width:230px; z-index:90; transform:translateX(-100%); transition:.2s;}
+  .sidebar.open{transform:translateX(0);}
+  main#view{padding:70px 16px 40px;}
+  .hamburger{display:flex; position:fixed; top:14px; left:14px; z-index:95; width:38px; height:38px; align-items:center; justify-content:center; background:var(--bg-2); border:1px solid var(--border); border-radius:8px; color:var(--text-0);}
+}
+</style>
+</head>
+<body>
+
+<div id="toast-stack"></div>
+<div id="modal-root"></div>
+
+<!-- ============ AUTH SCREEN ============ -->
+<section id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="logo-mark">CA</div>
+      <div class="name">CyberArena</div>
+    </div>
+
+    <div id="login-form">
+      <h2 style="font-size:18px;">Zaloguj się</h2>
+      <p class="muted" style="font-size:13px; margin:4px 0 0;">Wróć do nauki cyberbezpieczeństwa.</p>
+      <label for="login-identifier">Login lub e-mail</label>
+      <input id="login-identifier" autocomplete="username">
+      <label for="login-password">Hasło</label>
+      <input id="login-password" type="password" autocomplete="current-password">
+      <div id="login-error" class="field-error hidden"></div>
+      <button class="btn btn-primary btn-block mt-16" id="login-submit" style="margin-top:18px;">Zaloguj się</button>
+      <div class="auth-switch">Nie masz konta? <button id="go-register">Zarejestruj się</button></div>
+    </div>
+
+    <div id="register-form" class="hidden">
+      <h2 style="font-size:18px;">Zarejestruj się</h2>
+      <p class="muted" style="font-size:13px; margin:4px 0 0;">Dołącz i zacznij zdobywać XP.</p>
+      <label for="reg-username">Nazwa użytkownika</label>
+      <input id="reg-username" autocomplete="username">
+      <label for="reg-email">E-mail</label>
+      <input id="reg-email" type="email" autocomplete="email">
+      <label for="reg-password">Hasło</label>
+      <input id="reg-password" type="password" autocomplete="new-password">
+      <label for="reg-password2">Powtórz hasło</label>
+      <input id="reg-password2" type="password" autocomplete="new-password">
+      <div class="field-hint">Min. 10 znaków. Hasła są haszowane po stronie serwera (Argon2id) — nigdy nie trafiają w plaintext do bazy.</div>
+      <div id="register-error" class="field-error hidden"></div>
+      <button class="btn btn-primary btn-block" id="register-submit" style="margin-top:18px;">Utwórz konto</button>
+      <div class="auth-switch">Masz już konto? <button id="go-login">Zaloguj się</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FORCED PASSWORD CHANGE ============ -->
+<section id="force-pw-screen" class="hidden" style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;">
+  <div class="auth-card">
+    <h2 style="font-size:18px;">Zmiana hasła wymagana</h2>
+    <p class="muted" style="font-size:13px; margin:4px 0 0;">To pierwsze logowanie na tym koncie — ustaw nowe, prywatne hasło.</p>
+    <label for="fp-current">Aktualne hasło (tymczasowe)</label>
+    <input id="fp-current" type="password">
+    <label for="fp-new">Nowe hasło</label>
+    <input id="fp-new" type="password">
+    <label for="fp-new2">Powtórz nowe hasło</label>
+    <input id="fp-new2" type="password">
+    <div id="fp-error" class="field-error hidden"></div>
+    <button class="btn btn-primary btn-block" id="fp-submit" style="margin-top:18px;">Zmień hasło</button>
+  </div>
+</section>
+
+<!-- ============ APP SHELL ============ -->
+<button class="hamburger" id="hamburger">☰</button>
+<div id="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="auth-brand">
+      <div class="logo-mark">CA</div>
+      <div class="name">CyberArena</div>
+    </div>
+    <nav id="nav-main">
+      <div class="nav-group">
+        <div class="nav-item" data-route="dashboard"><span class="dot"></span> Pulpit</div>
+        <div class="nav-item" data-route="modules"><span class="dot"></span> Moduły</div>
+        <div class="nav-item" data-route="tests"><span class="dot"></span> Testy</div>
+        <div class="nav-item" data-route="labs"><span class="dot"></span> Laboratoria</div>
+        <div class="nav-item" data-route="contests"><span class="dot"></span> Konkursy</div>
+        <div class="nav-item" data-route="ranking"><span class="dot"></span> Ranking</div>
+      </div>
+      <div class="nav-group" id="admin-nav-group"></div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar" id="sidebar-avatar">?</div>
+        <div class="user-meta">
+          <div class="u-name" id="sidebar-username">—</div>
+          <div class="u-role" id="sidebar-role">—</div>
+        </div>
+      </div>
+      <div class="nav-item" data-route="profile" style="margin-top:6px;"><span class="dot"></span> Profil</div>
+      <button class="btn btn-ghost btn-block btn-sm" id="logout-btn" style="margin-top:2px;">Wyloguj się</button>
+    </div>
+  </aside>
+  <main id="view"></main>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+// ===================== API CLIENT =====================
+const API_BASE = '/api';
+async function api(path, { method = 'GET', body } = {}) {
+  const res = await fetch(API_BASE + path, {
+    method,
+    credentials: 'include',
+    headers: body ? { 'Content-Type': 'application/json' } : {},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* no body */ }
+  if (!res.ok) {
+    const err = new Error((data && data.error) || `Błąd żądania (${res.status})`);
+    err.status = res.status;
+    err.code = data && data.code;
+    err.details = data && data.details;
+    throw err;
+  }
+  return data;
+}
+
+// ===================== STATE =====================
+const state = { user: null, route: 'dashboard', routeParam: null };
+
+// ===================== TOASTS =====================
+function toast(message, type = 'info') {
+  const stack = document.getElementById('toast-stack');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+  el.innerHTML = `<span class="icon">${icon}</span><span>${escapeHtml(message)}</span>`;
+  stack.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = '.2s'; setTimeout(() => el.remove(), 200); }, 4200);
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str == null ? '' : String(str);
+  return d.innerHTML;
+}
+
+// ===================== MODAL =====================
+function openModal({ title, bodyHtml, footHtml, large, onMount, onClose }) {
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal ${large ? 'modal-lg' : ''}">
+        <div class="modal-head"><h3>${escapeHtml(title)}</h3><button class="modal-close" id="modal-close-btn">&times;</button></div>
+        <div class="modal-body">${bodyHtml}</div>
+        ${footHtml ? `<div class="modal-foot">${footHtml}</div>` : ''}
+      </div>
+    </div>`;
+  function close() { root.innerHTML = ''; if (onClose) onClose(); }
+  document.getElementById('modal-backdrop').addEventListener('click', (e) => { if (e.target.id === 'modal-backdrop') close(); });
+  document.getElementById('modal-close-btn').addEventListener('click', close);
+  if (onMount) onMount(close);
+  return close;
+}
+
+// ===================== ROUTER =====================
+const ROUTE_LABELS = {
+  dashboard: 'Pulpit', modules: 'Moduły', tests: 'Testy', labs: 'Laboratoria',
+  contests: 'Konkursy', ranking: 'Ranking', profile: 'Profil',
+  'admin-dashboard': 'Panel administratora', 'admin-users': 'Użytkownicy', 'admin-employees': 'Pracownicy',
+  'admin-modules': 'Moduły (zarządzanie)', 'admin-tests': 'Testy (zarządzanie)', 'admin-labs': 'Laby (zarządzanie)',
+  'admin-contests': 'Konkursy (zarządzanie)', 'admin-logs': 'Logi bezpieczeństwa', 'admin-settings': 'Ustawienia',
+};
+
+function navigate(route, param = null) {
+  state.route = route; state.routeParam = param;
+  document.querySelectorAll('.nav-item').forEach((el) => el.classList.toggle('active', el.dataset.route === route));
+  document.getElementById('sidebar').classList.remove('open');
+  renderRoute();
+}
+
+async function renderRoute() {
+  const view = document.getElementById('view');
+  view.innerHTML = `<div class="loading-state"><div class="spinner"></div> Ładowanie…</div>`;
+  try {
+    const renderers = {
+      dashboard: renderDashboard, modules: renderModulesList, tests: renderTestsList,
+      labs: renderLabsList, contests: renderContestsList, ranking: renderRanking, profile: renderProfile,
+      'module-detail': renderModuleDetail, 'test-take': renderTestTake, 'lab-detail': renderLabDetail, 'contest-detail': renderContestDetail,
+      'admin-dashboard': renderAdminDashboard, 'admin-users': renderAdminUsers, 'admin-employees': renderAdminEmployees,
+      'admin-modules': renderAdminModules, 'admin-tests': renderAdminTests, 'admin-labs': renderAdminLabs,
+      'admin-contests': renderAdminContests, 'admin-logs': renderAdminLogs, 'admin-settings': renderAdminSettings,
+    };
+    const fn = renderers[state.route] || renderDashboard;
+    await fn(view);
+  } catch (err) {
+    view.innerHTML = `<div class="empty-state"><div class="icon">⚠</div><div>${escapeHtml(err.message)}</div></div>`;
+    toast(err.message, 'error');
+  }
+}
+
+function pageHead(title, sub, actionsHtml = '') {
+  return `<div class="page-head"><div><h1>${escapeHtml(title)}</h1>${sub ? `<div class="page-sub">${escapeHtml(sub)}</div>` : ''}</div><div class="flex-row">${actionsHtml}</div></div>`;
+}
+
+function difficultyBadge(d) {
+  const map = { beginner: 'Początkujący', intermediate: 'Średni', advanced: 'Zaawansowany' };
+  return `<span class="badge badge-${d}">${map[d] || d}</span>`;
+}
+
+// ===================== DASHBOARD =====================
+async function renderDashboard(view) {
+  const [data] = await Promise.all([api('/me/dashboard')]);
+  const xpToNext = (state.user.level) * 250;
+  const xpProgress = Math.min(100, Math.round((data.xp / xpToNext) * 100));
+
+  view.innerHTML = `
+    ${pageHead('Pulpit', `Witaj z powrotem, ${escapeHtml(state.user.username)}.`)}
+    <div class="grid grid-3">
+      <div class="card stat-card"><div class="stat-num">${data.level}</div><div class="stat-label">Poziom</div></div>
+      <div class="card stat-card"><div class="stat-num">${data.xp}</div><div class="stat-label">Całkowite XP</div></div>
+      <div class="card stat-card"><div class="stat-num">${data.rank ? '#' + data.rank : '—'}</div><div class="stat-label">Pozycja w rankingu</div></div>
+    </div>
+    <div class="panel mt-24">
+      <div class="flex-between"><strong>Postęp do poziomu ${data.level + 1}</strong><span class="muted">${data.xp} / ${xpToNext} XP</span></div>
+      <div class="progress-bar mt-16"><div style="width:${xpProgress}%"></div></div>
+    </div>
+
+    <div class="grid grid-2 mt-24">
+      <div class="panel">
+        <h3 style="font-size:15px;">Moduły w toku</h3>
+        ${data.modulesInProgress.length ? data.modulesInProgress.map((m) => `
+          <div class="flex-between" style="padding:10px 0; border-bottom:1px solid var(--border-soft);">
+            <span>${escapeHtml(m.title)}</span>
+            <span class="badge ${m.status === 'completed' ? 'badge-published' : 'badge-draft'}">${m.status === 'completed' ? 'Ukończono' : 'W trakcie'}</span>
+          </div>`).join('') : `<div class="muted" style="padding:10px 0;">Brak rozpoczętych modułów. <a href="#" data-nav="modules" style="color:var(--accent);">Przeglądaj moduły →</a></div>`}
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;">Aktywne konkursy</h3>
+        ${data.activeContests.length ? data.activeContests.map((c) => `
+          <div style="padding:10px 0; border-bottom:1px solid var(--border-soft);">
+            <div>${escapeHtml(c.title)}</div>
+            <div class="muted" style="font-size:12px;">Kończy się: ${new Date(c.ends_at).toLocaleString('pl-PL')}</div>
+          </div>`).join('') : `<div class="muted" style="padding:10px 0;">Obecnie brak aktywnych konkursów.</div>`}
+      </div>
+    </div>
+
+    <div class="grid grid-2 mt-24">
+      <div class="panel">
+        <h3 style="font-size:15px;">Ostatnie testy</h3>
+        ${data.recentTests.length ? data.recentTests.map((t) => `
+          <div class="flex-between" style="padding:10px 0; border-bottom:1px solid var(--border-soft);">
+            <span>${escapeHtml(t.title)}</span><span class="xp-pill">${t.score_points}/${t.max_points} pkt</span>
+          </div>`).join('') : `<div class="muted" style="padding:10px 0;">Nie podeszłeś jeszcze do żadnego testu.</div>`}
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;">Odznaki</h3>
+        ${data.badges.length ? `<div class="flex-row" style="flex-wrap:wrap;">${data.badges.map((b) => `<span class="badge badge-published">🏅 ${escapeHtml(b.title)}</span>`).join('')}</div>` : `<div class="muted">Zdobądź swoją pierwszą odznakę, kończąc moduł lub lab.</div>`}
+      </div>
+    </div>
+  `;
+  view.querySelectorAll('[data-nav]').forEach((el) => el.addEventListener('click', (e) => { e.preventDefault(); navigate(el.dataset.nav); }));
+}
+
+// ===================== MODULES =====================
+async function renderModulesList(view) {
+  const { modules } = await api('/modules');
+  view.innerHTML = pageHead('Moduły', 'Ucz się krok po kroku i zdobywaj XP.') +
+    (modules.length ? `<div class="grid grid-3">${modules.map(moduleCard).join('')}</div>`
+      : `<div class="empty-state"><div class="icon">📦</div>Brak dostępnych modułów.</div>`);
+  view.querySelectorAll('[data-module]').forEach((el) => el.addEventListener('click', () => navigate('module-detail', el.dataset.module)));
+}
+function moduleCard(m) {
+  return `<div class="card card-clickable" data-module="${m.id}">
+    <div class="flex-between">${difficultyBadge(m.difficulty)}<span class="xp-pill">+${m.xp_reward} XP</span></div>
+    <h3 style="font-size:15px; margin-top:12px;">${escapeHtml(m.title)}</h3>
+    <p class="muted" style="font-size:13px;">${escapeHtml((m.description || '').slice(0, 90))}${(m.description || '').length > 90 ? '…' : ''}</p>
+  </div>`;
+}
+
+async function renderModuleDetail(view) {
+  const { module: m, lessons, progress } = await api(`/modules/${state.routeParam}`);
+  view.innerHTML = `
+    ${pageHead(m.title, '')}
+    <div class="flex-row">${difficultyBadge(m.difficulty)}<span class="xp-pill">+${m.xp_reward} XP</span>${progress && progress.status === 'completed' ? '<span class="badge badge-published">Ukończono</span>' : ''}</div>
+    <p class="mt-16">${escapeHtml(m.description)}</p>
+    <div class="divider"></div>
+    ${lessons.length ? lessons.map((l, i) => `
+      <div class="panel mt-16">
+        <h3 style="font-size:15px;">${i + 1}. ${escapeHtml(l.title)}</h3>
+        <div style="white-space:pre-wrap; font-size:13.5px; color:var(--text-1); margin-top:8px;">${escapeHtml(l.content_md)}</div>
+      </div>`).join('') : '<div class="muted">Ten moduł nie ma jeszcze lekcji.</div>'}
+    <button class="btn btn-primary mt-24" id="complete-module-btn" ${progress && progress.status === 'completed' ? 'disabled' : ''}>
+      ${progress && progress.status === 'completed' ? 'Moduł ukończony' : 'Oznacz jako ukończony'}
+    </button>
+  `;
+  const btn = document.getElementById('complete-module-btn');
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    try {
+      const r = await api(`/modules/${m.id}/complete`, { method: 'POST' });
+      if (r.alreadyCompleted) { toast('Moduł był już ukończony.', 'info'); }
+      else { toast(`Moduł ukończony! +XP przyznane.`, 'success'); await refreshMe(); }
+      renderModuleDetail(view);
+    } catch (err) { toast(err.message, 'error'); btn.disabled = false; }
+  });
+}
+
+// ===================== TESTS =====================
+async function renderTestsList(view) {
+  const { tests } = await api('/tests');
+  view.innerHTML = pageHead('Testy', 'Sprawdź swoją wiedzę i zdobądź punkty.') +
+    (tests.length ? `<div class="grid grid-3">${tests.map((t) => `
+      <div class="card card-clickable" data-test="${t.id}">
+        <span class="xp-pill">+${t.xp_reward} XP</span>
+        <h3 style="font-size:15px; margin-top:12px;">${escapeHtml(t.title)}</h3>
+        <p class="muted" style="font-size:13px;">${escapeHtml((t.description || '').slice(0, 90))}</p>
+      </div>`).join('')}</div>`
+      : `<div class="empty-state"><div class="icon">📝</div>Brak dostępnych testów.</div>`);
+  view.querySelectorAll('[data-test]').forEach((el) => el.addEventListener('click', () => navigate('test-take', el.dataset.test)));
+}
+
+async function renderTestTake(view) {
+  const { test, questions } = await api(`/tests/${state.routeParam}`);
+  const answers = {};
+  view.innerHTML = `
+    ${pageHead(test.title, test.description)}
+    <div id="questions-wrap">
+      ${questions.map((q, i) => renderQuestion(q, i)).join('')}
+    </div>
+    <button class="btn btn-primary mt-24" id="submit-test-btn">Wyślij odpowiedzi</button>
+    <div id="result-panel"></div>
+  `;
+
+  function renderQuestion(q, i) {
+    let inner = '';
+    if (q.type === 'text') {
+      inner = `<input data-qid="${q.id}" data-qtype="text" placeholder="Twoja odpowiedź">`;
+    } else {
+      const opts = q.options || [];
+      inner = opts.map((o) => `<div class="q-option" data-qid="${q.id}" data-qtype="${q.type}" data-oid="${escapeHtml(o.id)}">${escapeHtml(o.label)}</div>`).join('');
+    }
+    return `<div class="panel mt-16"><div class="flex-between"><strong>${i + 1}. ${escapeHtml(q.prompt)}</strong><span class="muted" style="font-size:12px;">${q.points} pkt</span></div><div class="mt-16">${inner}</div></div>`;
+  }
+
+  view.querySelectorAll('.q-option').forEach((opt) => {
+    opt.addEventListener('click', () => {
+      const { qid, qtype, oid } = opt.dataset;
+      if (qtype === 'multiple_choice') {
+        opt.classList.toggle('selected');
+        const selected = Array.from(view.querySelectorAll(`.q-option[data-qid="${qid}"].selected`)).map((e) => e.dataset.oid);
+        answers[qid] = selected;
+      } else {
+        view.querySelectorAll(`.q-option[data-qid="${qid}"]`).forEach((e) => e.classList.remove('selected'));
+        opt.classList.add('selected');
+        answers[qid] = qtype === 'true_false' ? (oid === 'true') : oid;
+      }
+    });
+  });
+  view.querySelectorAll('input[data-qtype="text"]').forEach((inp) => {
+    inp.addEventListener('input', () => { answers[inp.dataset.qid] = inp.value; });
+  });
+
+  document.getElementById('submit-test-btn').addEventListener('click', async (e) => {
+    e.target.disabled = true;
+    try {
+      const result = await api(`/tests/${test.id}/submit`, { method: 'POST', body: { answers } });
+      const a = result.attempt;
+      document.getElementById('result-panel').innerHTML = `
+        <div class="panel mt-24" style="border-color:var(--accent-dim);">
+          <h3>Wynik: ${a.score_points}/${a.max_points} punktów</h3>
+          <p class="muted">${a.correct_count}/${a.total_count} poprawnych odpowiedzi ${a.xp_awarded > 0 ? `· +${a.xp_awarded} XP` : ''}</p>
+        </div>`;
+      toast('Test zakończony!', 'success');
+      if (a.xp_awarded > 0) await refreshMe();
+    } catch (err) { toast(err.message, 'error'); e.target.disabled = false; }
+  });
+}
+
+// ===================== LABS =====================
+async function renderLabsList(view) {
+  const { labs } = await api('/labs');
+  view.innerHTML = pageHead('Laboratoria', 'Bezpieczne środowiska ćwiczeniowe — znajdź flagę.') +
+    (labs.length ? `<div class="grid grid-3">${labs.map((l) => `
+      <div class="card card-clickable" data-lab="${l.id}">
+        <div class="flex-between">${difficultyBadge(l.difficulty)}<span class="xp-pill">+${l.xp_reward} XP</span></div>
+        <h3 style="font-size:15px; margin-top:12px;">${escapeHtml(l.title)}</h3>
+        <p class="muted" style="font-size:13px;">${escapeHtml((l.description || '').slice(0, 90))}</p>
+      </div>`).join('')}</div>`
+      : `<div class="empty-state"><div class="icon">🧪</div>Brak dostępnych laboratoriów.</div>`);
+  view.querySelectorAll('[data-lab]').forEach((el) => el.addEventListener('click', () => navigate('lab-detail', el.dataset.lab)));
+}
+
+async function renderLabDetail(view) {
+  const { lab, solved } = await api(`/labs/${state.routeParam}`);
+  view.innerHTML = `
+    ${pageHead(lab.title, '')}
+    <div class="flex-row">${difficultyBadge(lab.difficulty)}<span class="xp-pill">+${lab.xp_reward} XP</span>${solved ? '<span class="badge badge-published">Rozwiązano</span>' : ''}</div>
+    <p class="mt-16">${escapeHtml(lab.description)}</p>
+    <div class="panel mt-16"><h3 style="font-size:15px;">Instrukcja</h3><div style="white-space:pre-wrap; font-size:13.5px; color:var(--text-1); margin-top:8px;">${escapeHtml(lab.instructions_md)}</div></div>
+    <div class="panel mt-16">
+      <label for="flag-input">Flaga</label>
+      <input id="flag-input" placeholder="CTF{...}" ${solved ? 'disabled' : ''}>
+      <button class="btn btn-primary mt-16" id="flag-submit-btn" ${solved ? 'disabled' : ''}>${solved ? 'Już rozwiązane' : 'Prześlij flagę'}</button>
+      <div id="flag-result" class="mt-16"></div>
+    </div>
+  `;
+  const btn = document.getElementById('flag-submit-btn');
+  if (btn && !solved) {
+    btn.addEventListener('click', async () => {
+      const flag = document.getElementById('flag-input').value.trim();
+      if (!flag) return;
+      btn.disabled = true;
+      try {
+        const result = await api(`/labs/${lab.id}/submit`, { method: 'POST', body: { flag } });
+        if (result.correct) {
+          document.getElementById('flag-result').innerHTML = `<div class="badge badge-published">✓ Poprawna flaga! ${result.xpResult ? '+' + (result.xpResult.xp - state.user.xp) + ' XP' : ''}</div>`;
+          toast('Flaga poprawna!', 'success');
+          if (result.xpResult) await refreshMe();
+          renderLabDetail(view);
+        } else {
+          document.getElementById('flag-result').innerHTML = `<div class="badge" style="background:rgba(255,84,112,.14); color:var(--danger);">✕ Nieprawidłowa flaga</div>`;
+          toast('Nieprawidłowa flaga.', 'error');
+          btn.disabled = false;
+        }
+      } catch (err) { toast(err.message, 'error'); btn.disabled = false; }
+    });
+  }
+}
+
+// ===================== CONTESTS =====================
+async function renderContestsList(view) {
+  const { contests } = await api('/contests');
+  const now = new Date();
+  view.innerHTML = pageHead('Konkursy', 'Rywalizuj z innymi i zdobywaj punkty.') +
+    (contests.length ? `<div class="grid grid-3">${contests.map((c) => {
+      const active = new Date(c.starts_at) <= now && now <= new Date(c.ends_at);
+      const upcoming = now < new Date(c.starts_at);
+      return `<div class="card card-clickable" data-contest="${c.id}">
+        <span class="badge ${active ? 'badge-published' : 'badge-draft'}">${active ? 'Aktywny' : upcoming ? 'Wkrótce' : 'Zakończony'}</span>
+        <h3 style="font-size:15px; margin-top:12px;">${escapeHtml(c.title)}</h3>
+        <p class="muted" style="font-size:13px;">${new Date(c.starts_at).toLocaleDateString('pl-PL')} – ${new Date(c.ends_at).toLocaleDateString('pl-PL')}</p>
+      </div>`;
+    }).join('')}</div>` : `<div class="empty-state"><div class="icon">🏆</div>Brak dostępnych konkursów.</div>`);
+  view.querySelectorAll('[data-contest]').forEach((el) => el.addEventListener('click', () => navigate('contest-detail', el.dataset.contest)));
+}
+
+async function renderContestDetail(view) {
+  const { contest, tasks, ranking } = await api(`/contests/${state.routeParam}`);
+  view.innerHTML = `
+    ${pageHead(contest.title, contest.description)}
+    <p class="muted">Trwa: ${new Date(contest.starts_at).toLocaleString('pl-PL')} → ${new Date(contest.ends_at).toLocaleString('pl-PL')}</p>
+    <div class="grid grid-2 mt-16">
+      <div>
+        ${tasks.map((t) => `
+          <div class="panel mt-16">
+            <div class="flex-between"><strong>${escapeHtml(t.title)}</strong><span class="xp-pill">${t.points} pkt</span></div>
+            <p class="muted" style="font-size:13px;">${escapeHtml(t.description)}</p>
+            ${t.solved ? '<span class="badge badge-published">Rozwiązano</span>' : `
+              <div class="flex-row mt-16">
+                <input placeholder="Flaga" data-flag-for="${t.id}" style="flex:1;">
+                <button class="btn btn-primary btn-sm" data-submit-flag="${t.id}">Wyślij</button>
+              </div>`}
+          </div>`).join('')}
+      </div>
+      <div class="panel">
+        <h3 style="font-size:15px;">Ranking konkursu</h3>
+        ${ranking.length ? `<table class="mt-16"><thead><tr><th>#</th><th>Użytkownik</th><th>Punkty</th></tr></thead><tbody>
+          ${ranking.map((r, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(r.username)}</td><td>${r.points}</td></tr>`).join('')}
+        </tbody></table>` : '<div class="muted mt-16">Nikt jeszcze nie zdobył punktów.</div>'}
+      </div>
+    </div>
+  `;
+  view.querySelectorAll('[data-submit-flag]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const taskId = btn.dataset.submitFlag;
+      const input = view.querySelector(`[data-flag-for="${taskId}"]`);
+      const flag = input.value.trim();
+      if (!flag) return;
+      btn.disabled = true;
+      try {
+        const result = await api(`/contests/tasks/${taskId}/submit`, { method: 'POST', body: { flag } });
+        toast(result.correct ? `Poprawnie! +${result.pointsAwarded} pkt` : 'Nieprawidłowa flaga.', result.correct ? 'success' : 'error');
+        renderContestDetail(view);
+      } catch (err) { toast(err.message, 'error'); btn.disabled = false; }
+    });
+  });
+}
+
+// ===================== RANKING =====================
+async function renderRanking(view) {
+  const { ranking } = await api('/ranking');
+  view.innerHTML = pageHead('Ranking', 'Najlepsi gracze CyberArena.') + `
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Użytkownik</th><th>Poziom</th><th>XP</th></tr></thead>
+        <tbody>
+          ${ranking.map((r) => `<tr ${r.username === state.user.username ? 'style="background:var(--accent-glow);"' : ''}>
+            <td>${r.rank <= 3 ? ['🥇', '🥈', '🥉'][r.rank - 1] : r.rank}</td>
+            <td>${escapeHtml(r.username)}</td><td>${r.level}</td><td>${r.xp}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ===================== PROFILE =====================
+async function renderProfile(view) {
+  view.innerHTML = `
+    ${pageHead('Profil', 'Zarządzaj swoim kontem.')}
+    <div class="panel" style="max-width:420px;">
+      <div><strong>${escapeHtml(state.user.username)}</strong></div>
+      <div class="muted" style="font-size:13px;">${escapeHtml(state.user.email)}</div>
+      <div class="divider"></div>
+      <h3 style="font-size:14px;">Zmień hasło</h3>
+      <label for="cp-current">Aktualne hasło</label><input id="cp-current" type="password">
+      <label for="cp-new">Nowe hasło</label><input id="cp-new" type="password">
+      <label for="cp-new2">Powtórz nowe hasło</label><input id="cp-new2" type="password">
+      <div id="cp-error" class="field-error hidden"></div>
+      <button class="btn btn-primary mt-16" id="cp-submit">Zmień hasło</button>
+      <div class="divider"></div>
+      <button class="btn btn-danger btn-block" id="logout-all-btn">Wyloguj wszystkie sesje</button>
+    </div>
+  `;
+  document.getElementById('cp-submit').addEventListener('click', async () => {
+    const currentPassword = document.getElementById('cp-current').value;
+    const newPassword = document.getElementById('cp-new').value;
+    const newPasswordConfirm = document.getElementById('cp-new2').value;
+    const errEl = document.getElementById('cp-error');
+    errEl.classList.add('hidden');
+    try {
+      await api('/auth/change-password', { method: 'POST', body: { currentPassword, newPassword, newPasswordConfirm } });
+      toast('Hasło zmienione.', 'success');
+      ['cp-current', 'cp-new', 'cp-new2'].forEach((id) => { document.getElementById(id).value = ''; });
+    } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
+  });
+  document.getElementById('logout-all-btn').addEventListener('click', async () => {
+    await api('/auth/logout-all', { method: 'POST' });
+    location.reload();
+  });
+}
+
+// ===================== ADMIN: DASHBOARD =====================
+async function renderAdminDashboard(view) {
+  const d = await api('/admin/dashboard');
+  view.innerHTML = pageHead('Panel administratora', 'Przegląd platformy.') + `
+    <div class="grid grid-3">
+      <div class="card stat-card"><div class="stat-num">${d.users}</div><div class="stat-label">Użytkownicy</div></div>
+      <div class="card stat-card"><div class="stat-num">${d.employees}</div><div class="stat-label">Pracownicy</div></div>
+      <div class="card stat-card"><div class="stat-num">${d.activeUsersLast7Days}</div><div class="stat-label">Aktywni (7 dni)</div></div>
+      <div class="card stat-card"><div class="stat-num">${d.modules}</div><div class="stat-label">Moduły</div></div>
+      <div class="card stat-card"><div class="stat-num">${d.tests}</div><div class="stat-label">Testy</div></div>
+      <div class="card stat-card"><div class="stat-num">${d.labs}</div><div class="stat-label">Laby</div></div>
+      <div class="card stat-card"><div class="stat-num">${d.contests}</div><div class="stat-label">Konkursy</div></div>
+    </div>
+  `;
+}
+
+// ===================== ADMIN: USERS =====================
+async function renderAdminUsers(view) {
+  const { users } = await api('/admin/users');
+  view.innerHTML = pageHead('Użytkownicy', `${users.length} kont`) + `
+    <div class="table-wrap"><table>
+      <thead><tr><th>Login</th><th>E-mail</th><th>Poziom</th><th>XP</th><th>Status</th><th></th></tr></thead>
+      <tbody>${users.map((u) => `
+        <tr>
+          <td>${escapeHtml(u.username)}</td><td>${escapeHtml(u.email)}</td><td>${u.level}</td><td>${u.xp}</td>
+          <td><span class="badge ${u.is_blocked ? 'badge-role-admin' : 'badge-published'}">${u.is_blocked ? 'Zablokowany' : 'Aktywny'}</span></td>
+          <td><button class="btn btn-sm ${u.is_blocked ? '' : 'btn-danger'}" data-toggle-block="${u.id}" data-blocked="${u.is_blocked}">${u.is_blocked ? 'Odblokuj' : 'Zablokuj'}</button></td>
+        </tr>`).join('')}</tbody>
+    </table></div>
+  `;
+  view.querySelectorAll('[data-toggle-block]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const blocked = btn.dataset.blocked === 'true';
+      try {
+        await api(`/admin/users/${btn.dataset.toggleBlock}/block`, { method: 'PUT', body: { blocked: !blocked } });
+        toast(blocked ? 'Odblokowano użytkownika.' : 'Zablokowano użytkownika.', 'success');
+        renderAdminUsers(view);
+      } catch (err) { toast(err.message, 'error'); }
+    });
+  });
+}
+
+// ===================== ADMIN: EMPLOYEES =====================
+const ALL_PERMISSIONS = [
+  'module.create', 'module.edit', 'module.delete', 'test.create', 'test.edit', 'test.delete',
+  'lab.create', 'lab.edit', 'lab.delete', 'contest.create', 'contest.edit', 'contest.delete',
+  'user.view', 'user.edit', 'user.block', 'employee.create', 'employee.edit', 'settings.manage',
+];
+
+async function renderAdminEmployees(view) {
+  const { employees } = await api('/admin/employees');
+  view.innerHTML = pageHead('Pracownicy', `${employees.length} kont`,
+    `<button class="btn btn-primary" id="add-employee-btn">+ Dodaj pracownika</button>`) + `
+    <div class="table-wrap"><table>
+      <thead><tr><th>Login</th><th>E-mail</th><th>Uprawnienia</th><th>Status</th><th></th></tr></thead>
+      <tbody>${employees.map((e) => `
+        <tr>
+          <td>${escapeHtml(e.username)}</td><td>${escapeHtml(e.email)}</td>
+          <td class="muted" style="font-size:12px;">${e.permissions.length ? e.permissions.join(', ') : '—'}</td>
+          <td><span class="badge ${e.is_blocked ? 'badge-role-admin' : 'badge-published'}">${e.is_blocked ? 'Zablokowany' : 'Aktywny'}</span></td>
+          <td class="flex-row">
+            <button class="btn btn-sm" data-edit-perms="${e.id}" data-perms='${JSON.stringify(e.permissions)}'>Uprawnienia</button>
+            <button class="btn btn-sm btn-danger" data-delete-emp="${e.id}">Usuń</button>
+          </td>
+        </tr>`).join('')}</tbody>
+    </table></div>
+  `;
+
+  document.getElementById('add-employee-btn').addEventListener('click', () => openEmployeeModal());
+  view.querySelectorAll('[data-edit-perms]').forEach((btn) => {
+    btn.addEventListener('click', () => openPermissionsModal(btn.dataset.editPerms, JSON.parse(btn.dataset.perms)));
+  });
+  view.querySelectorAll('[data-delete-emp]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Usunąć to konto pracownika?')) return;
+      try { await api(`/admin/employees/${btn.dataset.deleteEmp}`, { method: 'DELETE' }); toast('Usunięto pracownika.', 'success'); renderAdminEmployees(view); }
+      catch (err) { toast(err.message, 'error'); }
+    });
+  });
+
+  function permCheckboxes(selected = []) {
+    return `<div class="perm-grid">${ALL_PERMISSIONS.map((p) => `
+      <label class="checkbox-row" style="margin:0;"><input type="checkbox" value="${p}" ${selected.includes(p) ? 'checked' : ''}> <span class="mono" style="font-size:12px; color:var(--text-1); font-weight:400;">${p}</span></label>
+    `).join('')}</div>`;
+  }
+
+  function openEmployeeModal() {
+    openModal({
+      title: 'Dodaj pracownika',
+      bodyHtml: `
+        <label for="emp-username">Login</label><input id="emp-username">
+        <label for="emp-email">E-mail</label><input id="emp-email" type="email">
+        <label for="emp-pass">Hasło tymczasowe</label><input id="emp-pass" type="password">
+        <div class="field-hint">Pracownik będzie musiał je zmienić przy pierwszym logowaniu.</div>
+        <label style="margin-top:18px;">Uprawnienia</label>
+        ${permCheckboxes()}
+        <div id="emp-error" class="field-error hidden"></div>
+      `,
+      footHtml: `<button class="btn" id="modal-cancel">Anuluj</button><button class="btn btn-primary" id="modal-save">Utwórz</button>`,
+      onMount: (close) => {
+        document.getElementById('modal-cancel').addEventListener('click', close);
+        document.getElementById('modal-save').addEventListener('click', async () => {
+          const username = document.getElementById('emp-username').value.trim();
+          const email = document.getElementById('emp-email').value.trim();
+          const temporaryPassword = document.getElementById('emp-pass').value;
+          const permissions = Array.from(document.querySelectorAll('.perm-grid input:checked')).map((c) => c.value);
+          try {
+            await api('/admin/employees', { method: 'POST', body: { username, email, temporaryPassword, permissions } });
+            toast('Pracownik utworzony.', 'success'); close(); renderAdminEmployees(view);
+          } catch (err) { const el = document.getElementById('emp-error'); el.textContent = err.message; el.classList.remove('hidden'); }
+        });
+      },
+    });
+  }
+
+  function openPermissionsModal(employeeId, currentPerms) {
+    openModal({
+      title: 'Uprawnienia pracownika',
+      bodyHtml: permCheckboxes(currentPerms),
+      footHtml: `<button class="btn" id="modal-cancel">Anuluj</button><button class="btn btn-primary" id="modal-save">Zapisz</button>`,
+      onMount: (close) => {
+        document.getElementById('modal-cancel').addEventListener('click', close);
+        document.getElementById('modal-save').addEventListener('click', async () => {
+          const permissions = Array.from(document.querySelectorAll('.perm-grid input:checked')).map((c) => c.value);
+          try { await api(`/admin/employees/${employeeId}/permissions`, { method: 'PUT', body: { permissions } }); toast('Uprawnienia zaktualizowane.', 'success'); close(); renderAdminEmployees(view); }
+          catch (err) { toast(err.message, 'error'); }
+        });
+      },
+    });
+  }
+}
+
+// ===================== ADMIN: MODULES / TESTS / LABS / CONTESTS (CRUD lists) =====================
+async function renderAdminModules(view) {
+  const { modules } = await api('/modules');
+  view.innerHTML = pageHead('Moduły — zarządzanie', `${modules.length} modułów`,
+    `<button class="btn btn-primary" id="add-btn">+ Nowy moduł</button>`) + adminContentTable(modules, 'module');
+  wireAdminContentActions(view, 'module', () => renderAdminModules(view), openModuleModal);
+  document.getElementById('add-btn').addEventListener('click', () => openModuleModal());
+
+  function openModuleModal(existing) {
+    openModal({
+      title: existing ? 'Edytuj moduł' : 'Nowy moduł', large: true,
+      bodyHtml: `
+        <label for="m-title">Tytuł</label><input id="m-title" value="${existing ? escapeHtml(existing.title) : ''}">
+        <label for="m-desc">Opis</label><textarea id="m-desc">${existing ? escapeHtml(existing.description) : ''}</textarea>
+        <label for="m-diff">Poziom trudności</label>
+        <select id="m-diff">
+          <option value="beginner" ${existing && existing.difficulty === 'beginner' ? 'selected' : ''}>Początkujący</option>
+          <option value="intermediate" ${existing && existing.difficulty === 'intermediate' ? 'selected' : ''}>Średni</option>
+          <option value="advanced" ${existing && existing.difficulty === 'advanced' ? 'selected' : ''}>Zaawansowany</option>
+        </select>
+        <label for="m-xp">XP za ukończenie</label><input id="m-xp" type="number" value="${existing ? existing.xp_reward : 50}">
+        <label class="checkbox-row"><input type="checkbox" id="m-pub" ${existing && existing.is_published ? 'checked' : ''}> Opublikowany</label>
+        <div id="m-error" class="field-error hidden"></div>
+      `,
+      footHtml: `<button class="btn" id="modal-cancel">Anuluj</button><button class="btn btn-primary" id="modal-save">Zapisz</button>`,
+      onMount: (close) => {
+        document.getElementById('modal-cancel').addEventListener('click', close);
+        document.getElementById('modal-save').addEventListener('click', async () => {
+          const body = {
+            title: document.getElementById('m-title').value.trim(),
+            description: document.getElementById('m-desc').value,
+            difficulty: document.getElementById('m-diff').value,
+            xpReward: parseInt(document.getElementById('m-xp').value, 10) || 0,
+            isPublished: document.getElementById('m-pub').checked,
+            lessons: existing ? undefined : [],
+          };
+          try {
+            if (existing) await api(`/modules/${existing.id}`, { method: 'PUT', body: { ...body, lessons: [] } });
+            else await api('/modules', { method: 'POST', body });
+            toast('Zapisano moduł.', 'success'); close(); renderAdminModules(view);
+          } catch (err) { const el = document.getElementById('m-error'); el.textContent = err.message; el.classList.remove('hidden'); }
+        });
+      },
+    });
+  }
+}
+
+async function renderAdminTests(view) {
+  const { tests } = await api('/tests');
+  view.innerHTML = pageHead('Testy — zarządzanie', `${tests.length} testów`,
+    `<button class="btn btn-primary" id="add-btn">+ Nowy test</button>`) + adminContentTable(tests, 'test');
+  wireAdminContentActions(view, 'test', () => renderAdminTests(view), null);
+  document.getElementById('add-btn').addEventListener('click', () => openTestModal());
+
+  function openTestModal() {
+    openModal({
+      title: 'Nowy test (1 pytanie jednokrotnego wyboru — szybki start)', large: true,
+      bodyHtml: `
+        <label for="t-title">Tytuł</label><input id="t-title">
+        <label for="t-desc">Opis</label><textarea id="t-desc"></textarea>
+        <label for="t-xp">XP za zaliczenie</label><input id="t-xp" type="number" value="100">
+        <label class="checkbox-row"><input type="checkbox" id="t-pub"> Opublikowany</label>
+        <div class="divider"></div>
+        <label for="t-q">Treść pytania</label><input id="t-q" placeholder="np. Który port domyślnie obsługuje HTTPS?">
+        <label for="t-opts">Opcje (jedna na linię, format: id|treść — pierwsza oznaczona jako poprawna)</label>
+        <textarea id="t-opts" placeholder="a|80\nb|443\nc|21">a|443\nb|80\nc|21</textarea>
+        <div class="field-hint">Pierwsza opcja w liście zostanie ustawiona jako poprawna odpowiedź.</div>
+        <div id="t-error" class="field-error hidden"></div>
+      `,
+      footHtml: `<button class="btn" id="modal-cancel">Anuluj</button><button class="btn btn-primary" id="modal-save">Utwórz</button>`,
+      onMount: (close) => {
+        document.getElementById('modal-cancel').addEventListener('click', close);
+        document.getElementById('modal-save').addEventListener('click', async () => {
+          const optLines = document.getElementById('t-opts').value.split('\n').map((l) => l.trim()).filter(Boolean);
+          const options = optLines.map((l) => { const [id, ...rest] = l.split('|'); return { id: id.trim(), label: rest.join('|').trim() }; });
+          const body = {
+            title: document.getElementById('t-title').value.trim(),
+            description: document.getElementById('t-desc').value,
+            xpReward: parseInt(document.getElementById('t-xp').value, 10) || 0,
+            isPublished: document.getElementById('t-pub').checked,
+            questions: [{ type: 'single_choice', prompt: document.getElementById('t-q').value.trim(), options, correctAnswer: options[0] ? options[0].id : 'a', points: 10 }],
+          };
+          try { await api('/tests', { method: 'POST', body }); toast('Test utworzony.', 'success'); close(); renderAdminTests(view); }
+          catch (err) { const el = document.getElementById('t-error'); el.textContent = err.message; el.classList.remove('hidden'); }
+        });
+      },
+    });
+  }
+}
+
+async function renderAdminLabs(view) {
+  const { labs } = await api('/labs');
+  view.innerHTML = pageHead('Laby — zarządzanie', `${labs.length} laboratoriów`,
+    `<button class="btn btn-primary" id="add-btn">+ Nowy lab</button>`) + adminContentTable(labs, 'lab');
+  wireAdminContentActions(view, 'lab', () => renderAdminLabs(view), null);
+  document.getElementById('add-btn').addEventListener('click', () => {
+    openModal({
+      title: 'Nowy lab', large: true,
+      bodyHtml: `
+        <label for="l-title">Tytuł</label><input id="l-title">
+        <label for="l-desc">Opis</label><textarea id="l-desc"></textarea>
+        <label for="l-instr">Instrukcja</label><textarea id="l-instr"></textarea>
+        <label for="l-diff">Poziom trudności</label>
+        <select id="l-diff"><option value="beginner">Początkujący</option><option value="intermediate">Średni</option><option value="advanced">Zaawansowany</option></select>
+        <label for="l-flag">Flaga (poprawna odpowiedź)</label><input id="l-flag" placeholder="CTF{...}">
+        <div class="field-hint">Flaga jest hashowana (Argon2id) przed zapisem — nigdy nie jest przechowywana jawnym tekstem.</div>
+        <label for="l-xp">XP za rozwiązanie</label><input id="l-xp" type="number" value="150">
+        <label class="checkbox-row"><input type="checkbox" id="l-pub"> Opublikowany</label>
+        <div id="l-error" class="field-error hidden"></div>
+      `,
+      footHtml: `<button class="btn" id="modal-cancel">Anuluj</button><button class="btn btn-primary" id="modal-save">Utwórz</button>`,
+      onMount: (close) => {
+        document.getElementById('modal-cancel').addEventListener('click', close);
+        document.getElementById('modal-save').addEventListener('click', async () => {
+          const body = {
+            title: document.getElementById('l-title').value.trim(),
+            description: document.getElementById('l-desc').value,
+            instructionsMd: document.getElementById('l-instr').value,
+            difficulty: document.getElementById('l-diff').value,
+            flag: document.getElementById('l-flag').value.trim(),
+            xpReward: parseInt(document.getElementById('l-xp').value, 10) || 0,
+            isPublished: document.getElementById('l-pub').checked,
+          };
+          try { await api('/labs', { method: 'POST', body }); toast('Lab utworzony.', 'success'); close(); renderAdminLabs(view); }
+          catch (err) { const el = document.getElementById('l-error'); el.textContent = err.message; el.classList.remove('hidden'); }
+        });
+      },
+    });
+  });
+}
+
+async function renderAdminContests(view) {
+  const { contests } = await api('/contests');
+  view.innerHTML = pageHead('Konkursy — zarządzanie', `${contests.length} konkursów`,
+    `<button class="btn btn-primary" id="add-btn">+ Nowy konkurs</button>`) + adminContentTable(contests, 'contest');
+  wireAdminContentActions(view, 'contest', () => renderAdminContests(view), null);
+  document.getElementById('add-btn').addEventListener('click', () => {
+    openModal({
+      title: 'Nowy konkurs', large: true,
+      bodyHtml: `
+        <label for="c-title">Tytuł</label><input id="c-title">
+        <label for="c-desc">Opis</label><textarea id="c-desc"></textarea>
+        <label for="c-start">Data rozpoczęcia</label><input id="c-start" type="datetime-local">
+        <label for="c-end">Data zakończenia</label><input id="c-end" type="datetime-local">
+        <label class="checkbox-row"><input type="checkbox" id="c-pub"> Opublikowany</label>
+        <div class="divider"></div>
+        <label for="c-task-title">Zadanie: tytuł</label><input id="c-task-title">
+        <label for="c-task-desc">Zadanie: opis</label><textarea id="c-task-desc"></textarea>
+        <label for="c-task-flag">Zadanie: flaga</label><input id="c-task-flag">
+        <label for="c-task-points">Zadanie: punkty</label><input id="c-task-points" type="number" value="100">
+        <div id="c-error" class="field-error hidden"></div>
+      `,
+      footHtml: `<button class="btn" id="modal-cancel">Anuluj</button><button class="btn btn-primary" id="modal-save">Utwórz</button>`,
+      onMount: (close) => {
+        document.getElementById('modal-cancel').addEventListener('click', close);
+        document.getElementById('modal-save').addEventListener('click', async () => {
+          const body = {
+            title: document.getElementById('c-title').value.trim(),
+            description: document.getElementById('c-desc').value,
+            startsAt: new Date(document.getElementById('c-start').value).toISOString(),
+            endsAt: new Date(document.getElementById('c-end').value).toISOString(),
+            isPublished: document.getElementById('c-pub').checked,
+            tasks: [{
+              title: document.getElementById('c-task-title').value.trim(),
+              description: document.getElementById('c-task-desc').value,
+              flag: document.getElementById('c-task-flag').value.trim(),
+              points: parseInt(document.getElementById('c-task-points').value, 10) || 100,
+            }],
+          };
+          try { await api('/contests', { method: 'POST', body }); toast('Konkurs utworzony.', 'success'); close(); renderAdminContests(view); }
+          catch (err) { const el = document.getElementById('c-error'); el.textContent = err.message; el.classList.remove('hidden'); }
+        });
+      },
+    });
+  });
+}
+
+function adminContentTable(items, kind) {
+  if (!items.length) return `<div class="empty-state"><div class="icon">—</div>Brak elementów. Dodaj pierwszy.</div>`;
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Tytuł</th><th>Status</th><th>Utworzono</th><th></th></tr></thead>
+    <tbody>${items.map((it) => `
+      <tr>
+        <td>${escapeHtml(it.title)}</td>
+        <td><span class="badge ${it.is_published ? 'badge-published' : 'badge-draft'}">${it.is_published ? 'Opublikowany' : 'Szkic'}</span></td>
+        <td class="muted" style="font-size:12px;">${new Date(it.created_at).toLocaleDateString('pl-PL')}</td>
+        <td><button class="btn btn-sm btn-danger" data-del="${it.id}" data-kind="${kind}">Usuń</button></td>
+      </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+function wireAdminContentActions(view, kind, refresh) {
+  const endpoints = { module: '/modules', test: '/tests', lab: '/labs', contest: '/contests' };
+  view.querySelectorAll(`[data-del][data-kind="${kind}"]`).forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Na pewno usunąć? Tej operacji nie można cofnąć.')) return;
+      try { await api(`${endpoints[kind]}/${btn.dataset.del}`, { method: 'DELETE' }); toast('Usunięto.', 'success'); refresh(); }
+      catch (err) { toast(err.message, 'error'); }
+    });
+  });
+}
+
+// ===================== ADMIN: SECURITY LOGS =====================
+async function renderAdminLogs(view) {
+  const { logs } = await api('/admin/security-logs?limit=200');
+  view.innerHTML = pageHead('Logi bezpieczeństwa', `${logs.length} ostatnich zdarzeń`) + `
+    <div class="table-wrap"><table>
+      <thead><tr><th>Zdarzenie</th><th>Użytkownik</th><th>IP</th><th>Data</th></tr></thead>
+      <tbody>${logs.map((l) => `
+        <tr>
+          <td class="mono" style="font-size:12px;">${escapeHtml(l.event_type)}</td>
+          <td>${escapeHtml(l.actor_username || '—')}</td>
+          <td class="mono" style="font-size:12px;">${escapeHtml(l.ip_address || '—')}</td>
+          <td class="muted" style="font-size:12px;">${new Date(l.created_at).toLocaleString('pl-PL')}</td>
+        </tr>`).join('')}</tbody>
+    </table></div>
+  `;
+}
+
+// ===================== ADMIN: SETTINGS =====================
+async function renderAdminSettings(view) {
+  const { settings } = await api('/admin/settings');
+  view.innerHTML = pageHead('Ustawienia', 'Konfiguracja platformy.') + `
+    <div class="panel" style="max-width:480px;">
+      ${settings.map((s) => `
+        <div class="flex-between" style="padding:10px 0; border-bottom:1px solid var(--border-soft);">
+          <span class="mono" style="font-size:13px;">${escapeHtml(s.key)}</span>
+          <input data-setting="${escapeHtml(s.key)}" value='${escapeHtml(JSON.stringify(s.value))}' style="max-width:160px;">
+        </div>
+      `).join('')}
+      <button class="btn btn-primary mt-16" id="save-settings-btn">Zapisz</button>
+    </div>
+  `;
+  document.getElementById('save-settings-btn').addEventListener('click', async () => {
+    try {
+      for (const input of view.querySelectorAll('[data-setting]')) {
+        let value;
+        try { value = JSON.parse(input.value); } catch { value = input.value; }
+        await api(`/admin/settings/${input.dataset.setting}`, { method: 'PUT', body: { value } });
+      }
+      toast('Ustawienia zapisane.', 'success');
+    } catch (err) { toast(err.message, 'error'); }
+  });
+}
+
+// ===================== AUTH FLOW =====================
+async function refreshMe() {
+  const { user } = await api('/me');
+  state.user = user;
+  document.getElementById('sidebar-username').textContent = user.username;
+  document.getElementById('sidebar-role').textContent = { admin: 'Administrator', employee: 'Pracownik', user: 'Użytkownik' }[user.role];
+  document.getElementById('sidebar-avatar').textContent = user.username.slice(0, 2).toUpperCase();
+  renderAdminNav(user);
+  return user;
+}
+
+function renderAdminNav(user) {
+  const group = document.getElementById('admin-nav-group');
+  if (user.role === 'user') { group.innerHTML = ''; return; }
+  const items = [
+    ['admin-dashboard', 'Dashboard'],
+    (user.role === 'admin' || (user.permissions || []).includes('user.view')) && ['admin-users', 'Użytkownicy'],
+    user.role === 'admin' && ['admin-employees', 'Pracownicy'],
+    ['admin-modules', 'Moduły'], ['admin-tests', 'Testy'], ['admin-labs', 'Laby'], ['admin-contests', 'Konkursy'],
+    user.role === 'admin' && ['admin-logs', 'Logi bezpieczeństwa'],
+    (user.role === 'admin' || (user.permissions || []).includes('settings.manage')) && ['admin-settings', 'Ustawienia'],
+  ].filter(Boolean);
+  group.innerHTML = `<div class="nav-label">Panel zarządzania</div>` + items.map(([route, label]) => `<div class="nav-item" data-route="${route}"><span class="dot"></span> ${label}</div>`).join('');
+  group.querySelectorAll('.nav-item').forEach((el) => el.addEventListener('click', () => navigate(el.dataset.route)));
+}
+
+function showApp() {
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('force-pw-screen').classList.add('hidden');
+  document.getElementById('app-shell').classList.add('active');
+}
+function showAuth() {
+  document.getElementById('app-shell').classList.remove('active');
+  document.getElementById('force-pw-screen').classList.add('hidden');
+  document.getElementById('auth-screen').classList.remove('hidden');
+}
+function showForcePw() {
+  document.getElementById('app-shell').classList.remove('active');
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('force-pw-screen').classList.remove('hidden');
+}
+
+async function boot() {
+  try {
+    const user = await refreshMe();
+    if (user.mustChangePassword) { showForcePw(); return; }
+    showApp();
+    navigate('dashboard');
+  } catch (err) {
+    // The backend intentionally blocks /api/me while a temporary password
+    // must be changed. In that case the user simply needs to log in again;
+    // the login response itself contains the mustChangePassword flag.
+    showAuth();
+  }
+}
+
+document.getElementById('go-register').addEventListener('click', () => {
+  document.getElementById('login-form').classList.add('hidden');
+  document.getElementById('register-form').classList.remove('hidden');
+});
+document.getElementById('go-login').addEventListener('click', () => {
+  document.getElementById('register-form').classList.add('hidden');
+  document.getElementById('login-form').classList.remove('hidden');
+});
+
+document.getElementById('login-submit').addEventListener('click', async () => {
+  const identifier = document.getElementById('login-identifier').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.classList.add('hidden');
+  try {
+    // /api/auth/login returns the user object. Use it directly here because
+    // /api/me is intentionally blocked by the backend while a temporary
+    // password must be changed.
+    const result = await api('/auth/login', { method: 'POST', body: { identifier, password } });
+    state.user = result.user;
+
+    if (result.user.mustChangePassword) {
+      showForcePw();
+      document.getElementById('fp-current').value = password;
+      document.getElementById('fp-current').focus();
+      return;
+    }
+
+    await refreshMe();
+    showApp();
+    navigate('dashboard');
+  } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
+});
+
+document.getElementById('register-submit').addEventListener('click', async () => {
+  const username = document.getElementById('reg-username').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const passwordConfirm = document.getElementById('reg-password2').value;
+  const errEl = document.getElementById('register-error');
+  errEl.classList.add('hidden');
+  try {
+    await api('/auth/register', { method: 'POST', body: { username, email, password, passwordConfirm } });
+    await refreshMe();
+    showApp(); navigate('dashboard');
+    toast('Konto utworzone. Witaj w CyberArena!', 'success');
+  } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
+});
+
+document.getElementById('fp-submit').addEventListener('click', async () => {
+  const currentPassword = document.getElementById('fp-current').value;
+  const newPassword = document.getElementById('fp-new').value;
+  const newPasswordConfirm = document.getElementById('fp-new2').value;
+  const errEl = document.getElementById('fp-error');
+  errEl.classList.add('hidden');
+  try {
+    await api('/auth/change-password', { method: 'POST', body: { currentPassword, newPassword, newPasswordConfirm } });
+    toast('Hasło zmienione. Zaloguj się ponownie.', 'success');
+    await api('/auth/logout', { method: 'POST' }).catch(() => {});
+    location.reload();
+  } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
+});
+
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await api('/auth/logout', { method: 'POST' }).catch(() => {});
+  location.reload();
+});
+
+document.querySelectorAll('#nav-main .nav-item').forEach((el) => el.addEventListener('click', () => navigate(el.dataset.route)));
+document.querySelector('.sidebar-footer .nav-item').addEventListener('click', () => navigate('profile'));
+document.getElementById('hamburger').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+
+boot();
+})();
+</script>
+</body>
+</html>
